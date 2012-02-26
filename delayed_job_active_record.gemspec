@@ -16,8 +16,7 @@ Gem::Specification.new do |s|
   s.test_files        = Dir.glob('spec/**/*')
 
   s.add_runtime_dependency      'activerecord',  '> 2.1.0'
-  #s.add_runtime_dependency      'delayed_job',   '~> 3.0.0'
-  s.add_runtime_dependency      'delayed_job', :git => "git://github.com/sandboxrem/delayed_job_active_record.git"
+  s.add_runtime_dependency      'delayed_job',   '~> 3.0.0'
 
   s.add_development_dependency  'rspec',          '~> 2.0'
   s.add_development_dependency  'rake',           '~> 0.8'
