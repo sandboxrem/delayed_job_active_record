@@ -22,6 +22,7 @@ module Delayed
           scope :ready_to_run, lambda{|worker_name, max_run_time|
             where('(run_at <= ? AND (locked_at IS NULL OR locked_at < ?) OR locked_by = ?) AND failed_at IS NULL AND finished_at IS NULL', db_time_now, db_time_now - max_run_time, worker_name)
           }
+          # commenting it cause it doesn't work good with db_charmer, see changed below in method 'find_available'
           #scope :by_priority, order('priority ASC, run_at ASC')
         else
           set_table_name :delayed_jobs
@@ -53,7 +54,7 @@ module Delayed
 
           ::ActiveRecord::Base.silence do
             # only for Rails 3
-            order('priority ASC, run_at ASC').all(:limit => limit)
+            scope.order('priority ASC, run_at ASC').all(:limit => limit)
             #scope.by_priority.all(:limit => limit)
           end
         end
