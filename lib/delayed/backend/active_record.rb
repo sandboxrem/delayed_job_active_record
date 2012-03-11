@@ -52,7 +52,8 @@ module Delayed
           scope = scope.scoped(:conditions => ["queue IN (?)", Worker.queues]) if Worker.queues.any?
 
           ::ActiveRecord::Base.silence do
-            scope.all.order('priority ASC, run_at ASC').limit(limit)
+            # only for Rails 3
+            order('priority ASC, run_at ASC').all(:limit => limit)
             #scope.by_priority.all(:limit => limit)
           end
         end
