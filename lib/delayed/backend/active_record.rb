@@ -12,7 +12,8 @@ module Delayed
                           :failed_at, :locked_at, :locked_by, :handler
         end
 
-        scope :by_priority, lambda { order("priority ASC, run_at ASC") }
+        # commenting it cause it doesn't work good with db_charmer, see changed below in method 'find_available'
+        #scope :by_priority, lambda { order("priority ASC, run_at ASC") }
 
         before_save :set_default_run_at
 
@@ -24,7 +25,7 @@ module Delayed
         set_delayed_job_table_name
 
         def self.ready_to_run(worker_name, max_run_time)
-          where("(run_at <= ? AND (locked_at IS NULL OR locked_at < ?) OR locked_by = ?) AND failed_at IS NULL", db_time_now, db_time_now - max_run_time, worker_name)
+          where('(run_at <= ? AND (locked_at IS NULL OR locked_at < ?) OR locked_by = ?) AND failed_at IS NULL AND finished_at IS NULL', db_time_now, db_time_now - max_run_time, worker_name)
         end
 
         def self.before_fork
@@ -48,7 +49,8 @@ module Delayed
           ready_scope = ready_scope.where("priority >= ?", Worker.min_priority) if Worker.min_priority
           ready_scope = ready_scope.where("priority <= ?", Worker.max_priority) if Worker.max_priority
           ready_scope = ready_scope.where(queue: Worker.queues) if Worker.queues.any?
-          ready_scope = ready_scope.by_priority
+          #ready_scope = ready_scope.by_priority
+          ready_scope = ready_scope.order('priority ASC, run_at ASC')
 
           reserve_with_scope(ready_scope, worker, db_time_now)
         end
